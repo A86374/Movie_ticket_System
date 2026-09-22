@@ -29,7 +29,4 @@ public class JdbcUtil {
                 props.getProperty("db.user"),
                 props.getProperty("db.password"));
     }
-    public static void main(String[] args) throws Exception {
-        System.out.println(new JdbcUtil().getConnectionObject().getCatalog());
-    }
 }

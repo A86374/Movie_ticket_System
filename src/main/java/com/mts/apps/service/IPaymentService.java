@@ -1,6 +1,5 @@
 package com.mts.apps.service;
 
-import com.mts.apps.exception.MtsException;
 import com.mts.apps.model.Payment;
 import java.util.List;
 

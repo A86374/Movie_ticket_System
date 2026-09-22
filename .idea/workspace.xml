@@ -5,9 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fcbb5970-bebb-4e55-8382-0d604b64d928" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/dao/MovieDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/dao/MovieDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IBookingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IBookingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IMovieService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IMovieService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IPaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IPaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ISeatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ISeatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IShowService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IShowService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ITheatreService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ITheatreService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/util/JdbcUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/util/JdbcUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +45,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.AppController.executor": "Run",
     "Application.JdbcUtil.executor": "Run",
     "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
@@ -54,10 +62,23 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.language"
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.AppController">
+    <configuration name="AppController" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.mts.apps.controller.AppController" />
+      <module name="Movie_Ticket_System" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mts.apps.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="JdbcUtil" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.mts.apps.util.JdbcUtil" />
       <module name="Movie_Ticket_System" />
@@ -73,6 +94,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.AppController" />
         <item itemvalue="Application.JdbcUtil" />
       </list>
     </recent_temporary>
