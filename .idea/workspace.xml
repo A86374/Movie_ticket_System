@@ -6,15 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fcbb5970-bebb-4e55-8382-0d604b64d928" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/dao/MovieDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/dao/MovieDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IBookingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IBookingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IMovieService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IMovieService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IPaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IPaymentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ISeatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ISeatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IShowService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IShowService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ITheatreService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/ITheatreService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/service/IUserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mts/apps/util/JdbcUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mts/apps/util/JdbcUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,28 +34,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AppController.executor": "Run",
-    "Application.JdbcUtil.executor": "Run",
-    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/uk197/Documents/Reventure/Movie_Ticket_System",
-    "node.js.detected.package.jshint": "true",
-    "node.js.selected.package.jshint": "",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AppController.executor&quot;: &quot;Run&quot;,
+    &quot;Application.JdbcUtil.executor&quot;: &quot;Run&quot;,
+    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/uk197/Documents/Reventure/Movie_Ticket_System&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.AppController">
     <configuration name="AppController" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.mts.apps.controller.AppController" />
@@ -119,6 +110,11 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/.." />
+    </ignored-roots>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
