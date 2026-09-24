@@ -9,15 +9,13 @@ public interface IUserDao {
 
     int addUser(User user) throws SQLException;
 
-    User getUserById(int userId) throws SQLException;
+    User getUserByEmail(String email) throws SQLException;
+
+    User login(String email, String password) throws SQLException;
 
     List<User> getAllUsers() throws SQLException;
 
     boolean updateUser(User user) throws SQLException;
 
-    boolean deleteUser(int userId) throws SQLException;
-
-    User login(String email, String password) throws SQLException;
-
-    boolean emailExists(String email) throws SQLException;
+    boolean deleteUser(String email) throws SQLException;
 }
