@@ -9,11 +9,11 @@ public interface ITheatreDao {
 
     int addTheatre(Theatre theatre) throws SQLException;
 
-    Theatre getTheatreById(int theatreId) throws SQLException;
+    Theatre getTheatreByName(String name) throws SQLException;
 
     List<Theatre> getAllTheatres() throws SQLException;
 
     boolean updateTheatre(Theatre theatre) throws SQLException;
 
-    boolean deleteTheatre(int theatreId) throws SQLException;
+    boolean deleteTheatre(String name) throws SQLException;
 }
