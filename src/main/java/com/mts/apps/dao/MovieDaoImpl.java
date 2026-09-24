@@ -14,14 +14,28 @@ import java.util.List;
 
 public class MovieDaoImpl implements IMovieDao {
 
+    private static final String INSERT_MOVIE =
+            "INSERT INTO movies (title, language, genre, duration, release_date) VALUES (?, ?, ?, ?, ?)";
+
+    private static final String SELECT_MOVIE_BY_TITLE =
+            "SELECT * FROM movies WHERE title = ?";
+
+    private static final String SELECT_ALL_MOVIES =
+            "SELECT * FROM movies ORDER BY title";
+
+    private static final String UPDATE_MOVIE =
+            "UPDATE movies SET title = ?, language = ?, genre = ?, duration = ?, release_date = ? WHERE movie_id = ?";
+
+    private static final String DELETE_MOVIE_BY_TITLE =
+            "DELETE FROM movies WHERE title = ?";
+
     private final JdbcUtil jdbcUtil = new JdbcUtil();
 
     // CREATE - saves a movie and returns the id MySQL gave it
     @Override
     public int addMovie(Movie movie) throws SQLException {
-        String sql = "INSERT INTO movies (title, language, genre, duration, release_date) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = jdbcUtil.getConnectionObject();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = con.prepareStatement(INSERT_MOVIE, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, movie.getTitle());
             ps.setString(2, movie.getLanguage());
@@ -36,14 +50,13 @@ public class MovieDaoImpl implements IMovieDao {
         }
     }
 
-    // READ one - returns null when the id does not exist
+    // READ one - returns null when no movie has that title
     @Override
-    public Movie getMovieById(int movieId) throws SQLException {
-        String sql = "SELECT * FROM movies WHERE movie_id = ?";
+    public Movie getMovieByTitle(String title) throws SQLException {
         try (Connection con = jdbcUtil.getConnectionObject();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(SELECT_MOVIE_BY_TITLE)) {
 
-            ps.setInt(1, movieId);
+            ps.setString(1, title);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? mapRow(rs) : null;
             }
@@ -54,9 +67,8 @@ public class MovieDaoImpl implements IMovieDao {
     @Override
     public List<Movie> getAllMovies() throws SQLException {
         List<Movie> movies = new ArrayList<>();
-        String sql = "SELECT * FROM movies ORDER BY title";
         try (Connection con = jdbcUtil.getConnectionObject();
-             PreparedStatement ps = con.prepareStatement(sql);
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_MOVIES);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -69,10 +81,8 @@ public class MovieDaoImpl implements IMovieDao {
     // UPDATE - true when exactly one row was changed
     @Override
     public boolean updateMovie(Movie movie) throws SQLException {
-        String sql = "UPDATE movies SET title = ?, language = ?, genre = ?, duration = ?, release_date = ? "
-                + "WHERE movie_id = ?";
         try (Connection con = jdbcUtil.getConnectionObject();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(UPDATE_MOVIE)) {
 
             ps.setString(1, movie.getTitle());
             ps.setString(2, movie.getLanguage());
@@ -86,12 +96,11 @@ public class MovieDaoImpl implements IMovieDao {
 
     // DELETE - true when the movie was removed
     @Override
-    public boolean deleteMovie(int movieId) throws SQLException {
-        String sql = "DELETE FROM movies WHERE movie_id = ?";
+    public boolean deleteMovie(String title) throws SQLException {
         try (Connection con = jdbcUtil.getConnectionObject();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(DELETE_MOVIE_BY_TITLE)) {
 
-            ps.setInt(1, movieId);
+            ps.setString(1, title);
             return ps.executeUpdate() == 1;
         }
     }

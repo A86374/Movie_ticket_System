@@ -7,13 +7,14 @@ import java.util.List;
 
 public interface IMovieDao {
 
+    Movie getMovieByTitle(String title) throws SQLException;
     int addMovie(Movie movie) throws SQLException;
-
-    Movie getMovieById(int movieId) throws SQLException;
 
     List<Movie> getAllMovies() throws SQLException;
 
+    boolean deleteMovie(String title) throws SQLException;
+
     boolean updateMovie(Movie movie) throws SQLException;
 
-    boolean deleteMovie(int movieId) throws SQLException;
+
 }
