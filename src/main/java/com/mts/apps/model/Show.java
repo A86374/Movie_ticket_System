@@ -9,6 +9,7 @@ public class Show {
     private int showId;
     private Theatre theatre;
     private Movie movie;
+    private String showSlot;
     private LocalDate showDate;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -45,6 +46,8 @@ public class Show {
         return movie;
     }
 
+    public String getShowSlot() {return showSlot;}
+
     public void setMovie(Movie movie) {
         this.movie = movie;
     }
@@ -56,6 +59,8 @@ public class Show {
     public void setShowDate(LocalDate showDate) {
         this.showDate = showDate;
     }
+
+    public void setShowSlot(String showSlot) {this.showSlot = showSlot;}
 
     public LocalTime getStartTime() {
         return startTime;

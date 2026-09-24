@@ -1,18 +1,18 @@
 package com.mts.apps.model;
 
-/** Maps to the booked_seats table. */
 public class BookedSeat {
 
     private int bookedSeatId;
     private Booking booking;
+    private Show show;
     private Seat seat;
 
     public BookedSeat() {
     }
 
-    public BookedSeat(int bookedSeatId, Booking booking, Seat seat) {
-        this.bookedSeatId = bookedSeatId;
+    public BookedSeat(Booking booking, Show show, Seat seat) {
         this.booking = booking;
+        this.show = show;
         this.seat = seat;
     }
 
@@ -32,6 +32,14 @@ public class BookedSeat {
         this.booking = booking;
     }
 
+    public Show getShow() {
+        return show;
+    }
+
+    public void setShow(Show show) {
+        this.show = show;
+    }
+
     public Seat getSeat() {
         return seat;
     }
@@ -42,6 +50,8 @@ public class BookedSeat {
 
     @Override
     public String toString() {
-        return "BookedSeat{" + "bookedSeatId=" + bookedSeatId + ", " + "booking=" + (booking == null ? null : booking.getBookingId()) + ", " + "seat=" + (seat == null ? null : seat.getSeatId()) + "}";
+        return "BookedSeat [bookedSeatId=" + bookedSeatId
+                + ", seat=" + (seat == null ? null : seat.getSeatNumber())
+                + ", show=" + (show == null ? 0 : show.getShowId()) + "]";
     }
 }

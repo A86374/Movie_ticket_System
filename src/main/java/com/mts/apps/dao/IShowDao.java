@@ -1,6 +1,8 @@
 package com.mts.apps.dao;
 
+import com.mts.apps.model.Movie;
 import com.mts.apps.model.Show;
+import com.mts.apps.model.Theatre;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -11,17 +13,14 @@ public interface IShowDao {
 
     int addShow(Show show) throws SQLException;
 
-    Show getShowById(int showId) throws SQLException;
+    Show getShow(Theatre theatre, LocalDate showDate, String showSlot) throws SQLException;
 
     List<Show> getAllShows() throws SQLException;
 
-    boolean updateShow(Show show) throws SQLException;
+    List<Show> getUpcomingShowsByMovie(Movie movie) throws SQLException;
 
-    boolean deleteShow(int showId) throws SQLException;
+    List<Show> getOverlappingShows(Theatre theatre, LocalDate showDate,
+                                   LocalTime startTime, LocalTime endTime) throws SQLException;
 
-    /** Upcoming shows of one movie, used for the movie timings screen. */
-    List<Show> getShowsByMovie(int movieId) throws SQLException;
-
-    /** True when the timing clashes with another show in the same theatre on that date. */
-    boolean hasOverlap(int theatreId, LocalDate date, LocalTime start, LocalTime end) throws SQLException;
+    boolean deleteShow(Theatre theatre, LocalDate showDate, String showSlot) throws SQLException;
 }
