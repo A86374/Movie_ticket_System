@@ -37,4 +37,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
-src/main/resources/db.properties.idea/workspace.xml
+src/main/resources/db.properties
+.idea/workspace.xml
+logs/
