@@ -17,6 +17,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PaymentDaoImpl implements IPaymentDao {
 
     // payments -> bookings -> users, and bookings -> shows -> theatres, movies
@@ -48,20 +51,24 @@ public class PaymentDaoImpl implements IPaymentDao {
     private static final String SELECT_ALL_PAYMENTS =
             SELECT_BASE + "ORDER BY p.payment_date DESC";
 
+    private static final Logger logger = LoggerFactory.getLogger(PaymentDaoImpl.class);
+
     private final JdbcUtil jdbcUtil = new JdbcUtil();
 
     // CREATE - payment row and booking status change together, or neither happens
     @Override
     public int addPayment(Payment payment) throws SQLException {
+        int bookingId = payment.getBooking().getBookingId();
         Connection con = null;
         try {
             con = jdbcUtil.getConnectionObject();
             con.setAutoCommit(false);
+            logger.debug("Transaction started for payment on bookingId={}", bookingId);
 
             int paymentId;
             try (PreparedStatement ps = con.prepareStatement(INSERT_PAYMENT,
                     Statement.RETURN_GENERATED_KEYS)) {
-                ps.setInt(1, payment.getBooking().getBookingId());
+                ps.setInt(1, bookingId);
                 ps.setBigDecimal(2, payment.getAmount());
                 ps.setString(3, payment.getPaymentMethod());
                 ps.setString(4, payment.getPaymentStatus());
@@ -73,16 +80,19 @@ public class PaymentDaoImpl implements IPaymentDao {
             }
 
             try (PreparedStatement ps = con.prepareStatement(CONFIRM_BOOKING)) {
-                ps.setInt(1, payment.getBooking().getBookingId());
+                ps.setInt(1, bookingId);
                 ps.executeUpdate();
             }
 
             con.commit();
+            logger.info("Payment {} saved and booking {} confirmed, amount={}, method={}",
+                    paymentId, bookingId, payment.getAmount(), payment.getPaymentMethod());
             return paymentId;
 
         } catch (SQLException e) {
             if (con != null) {
                 con.rollback();
+                logger.error("Rolled back payment for bookingId={}", bookingId, e);
             }
             throw e;
         } finally {
