@@ -1,13 +1,16 @@
 <configuration>
 
-    <!-- what the developer sees while running the app -->
+    <!-- the console is the menu screen, so it only shows errors -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss} %-5level %logger{25} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} %-5level %logger{25} - %msg%n%ex{short}</pattern>
         </encoder>
     </appender>
 
-    <!-- the permanent record, rolls over by date and size -->
+    <!-- the file gets everything, with full stack traces -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/mts.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -21,13 +24,10 @@
         </encoder>
     </appender>
 
-    <!-- our own code can be chatty -->
     <logger name="com.mts.apps" level="DEBUG"/>
 
-    <!-- everything else stays quiet -->
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>
-
 </configuration>
