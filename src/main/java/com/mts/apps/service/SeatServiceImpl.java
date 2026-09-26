@@ -1,9 +1,7 @@
 package com.mts.apps.service;
 
 import com.mts.apps.dao.ISeatDao;
-import com.mts.apps.dao.ITheatreDao;
 import com.mts.apps.dao.SeatDaoImpl;
-import com.mts.apps.dao.TheatreDaoImpl;
 import com.mts.apps.exception.MtsException;
 import com.mts.apps.model.Seat;
 import com.mts.apps.model.Theatre;
@@ -22,7 +20,7 @@ public class SeatServiceImpl implements ISeatService {
     private static final List<String> SEAT_TYPES = List.of("SILVER", "GOLD", "PLATINUM");
 
     private final ISeatDao seatDao = new SeatDaoImpl();
-    private final ITheatreDao theatreDao = new TheatreDaoImpl();
+    private final ITheatreService theatreService = new TheatreServiceImpl();
 
     // FEATURE 7.1 - a new row, never past the theatre capacity
     @Override
@@ -36,7 +34,7 @@ public class SeatServiceImpl implements ISeatService {
         }
         String row = rowLetter.trim().toUpperCase();
         String type = checkTypeAndPrice(seatType, price);
-        Theatre theatre = findTheatre(theatreName);
+        Theatre theatre = theatreService.getTheatreByName(theatreName);
 
         try {
             List<Seat> existing = seatDao.getSeatsByTheatre(theatre);
@@ -74,7 +72,7 @@ public class SeatServiceImpl implements ISeatService {
 
     @Override
     public List<Seat> getSeatsByTheatre(String theatreName) throws MtsException {
-        Theatre theatre = findTheatre(theatreName);
+        Theatre theatre = theatreService.getTheatreByName(theatreName);
         try {
             List<Seat> seats = seatDao.getSeatsByTheatre(theatre);
             if (seats.isEmpty()) {
@@ -93,7 +91,7 @@ public class SeatServiceImpl implements ISeatService {
                            String seatType, BigDecimal price) throws MtsException {
         String type = checkTypeAndPrice(seatType, price);
         String number = checkSeatNumber(seatNumber);
-        Theatre theatre = findTheatre(theatreName);
+        Theatre theatre = theatreService.getTheatreByName(theatreName);
 
         try {
             Seat seat = seatDao.getSeat(theatre, number);
@@ -115,7 +113,7 @@ public class SeatServiceImpl implements ISeatService {
     @Override
     public void deleteSeat(String theatreName, String seatNumber) throws MtsException {
         String number = checkSeatNumber(seatNumber);
-        Theatre theatre = findTheatre(theatreName);
+        Theatre theatre = theatreService.getTheatreByName(theatreName);
 
         try {
             if (!seatDao.deleteSeat(theatre, number)) {
@@ -126,26 +124,6 @@ public class SeatServiceImpl implements ISeatService {
         } catch (SQLException e) {
             logger.error("deleteSeat failed: theatre={}, seat={}", theatreName, number, e);
             throw new MtsException("Could not delete the seat, it may be held by a booking", e);
-        }
-    }
-
-    // ---------------------------------------------------------------- helpers
-
-    // the console gives a name, every seat operation needs the Theatre object
-    private Theatre findTheatre(String theatreName) throws MtsException {
-        if (theatreName == null || theatreName.trim().isEmpty()) {
-            throw new MtsException("Please enter a theatre name");
-        }
-        try {
-            Theatre theatre = theatreDao.getTheatreByName(theatreName.trim());
-            if (theatre == null) {
-                throw new MtsException("No theatre found with the name " + theatreName);
-            }
-            return theatre;
-
-        } catch (SQLException e) {
-            logger.error("findTheatre failed: name={}", theatreName, e);
-            throw new MtsException("Could not load the theatre, please try again", e);
         }
     }
 

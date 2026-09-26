@@ -10,7 +10,6 @@ import com.mts.apps.model.User;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ public class BookingServiceImpl implements IBookingService {
     private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
 
     private static final int MAX_SEATS_PER_BOOKING = 10;
+    private static final int DUPLICATE_KEY = 1062;   // MySQL error code for a UNIQUE clash
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_CANCELLED = "CANCELLED";
     private static final List<String> STATUSES = List.of("PENDING", "CONFIRMED", "CANCELLED");
@@ -82,6 +82,7 @@ public class BookingServiceImpl implements IBookingService {
         Booking booking = new Booking();
         booking.setShow(show);
         booking.setUser(user);
+        booking.setBookingDate(LocalDateTime.now());
         booking.setTotalAmount(total);
         booking.setBookingStatus(STATUS_PENDING);
 
@@ -89,13 +90,13 @@ public class BookingServiceImpl implements IBookingService {
             booking.setBookingId(bookingDao.addBooking(booking, chosen));
             return booking;
 
-        } catch (SQLIntegrityConstraintViolationException e) {
-            // someone took one of these seats between the check above and the insert
-            logger.warn("Seat taken at insert time: showId={}, seats={}", show.getShowId(), wanted);
-            throw new MtsException(
-                    "One of those seats was just booked by someone else, please choose again", e);
-
         } catch (SQLException e) {
+            if (e.getErrorCode() == DUPLICATE_KEY) {
+                // someone took one of these seats between the check above and the insert
+                logger.warn("Seat taken at insert time: showId={}, seats={}", show.getShowId(), wanted);
+                throw new MtsException(
+                        "One of those seats was just booked by someone else, please choose again", e);
+            }
             logger.error("bookSeats failed: showId={}, userId={}", show.getShowId(), user.getUserId());
             throw new MtsException("Could not complete the booking, please try again", e);
         }

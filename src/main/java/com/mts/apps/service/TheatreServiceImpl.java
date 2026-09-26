@@ -1,6 +1,8 @@
 package com.mts.apps.service;
 
+import com.mts.apps.dao.ISeatDao;
 import com.mts.apps.dao.ITheatreDao;
+import com.mts.apps.dao.SeatDaoImpl;
 import com.mts.apps.dao.TheatreDaoImpl;
 import com.mts.apps.exception.MtsException;
 import com.mts.apps.model.Theatre;
@@ -15,9 +17,8 @@ public class TheatreServiceImpl implements ITheatreService {
 
     private static final Logger logger = LoggerFactory.getLogger(TheatreServiceImpl.class);
 
-    private static final int MAX_CAPACITY = 500;
-
     private final ITheatreDao theatreDao = new TheatreDaoImpl();
+    private final ISeatDao seatDao = new SeatDaoImpl();
 
     @Override
     public void addTheatre(Theatre theatre) throws MtsException {
@@ -78,6 +79,11 @@ public class TheatreServiceImpl implements ITheatreService {
             throw new MtsException("The theatre to update was not loaded properly");
         }
         try {
+            int seats = seatDao.countSeatsByTheatre(theatre);
+            if (theatre.getTotalSeats() < seats) {
+                throw new MtsException(theatre.getName() + " already has " + seats
+                        + " seats, capacity cannot be less than that");
+            }
             if (!theatreDao.updateTheatre(theatre)) {
                 logger.warn("Update matched no theatre: id={}", theatre.getTheatreId());
                 throw new MtsException("That theatre no longer exists");
@@ -110,7 +116,7 @@ public class TheatreServiceImpl implements ITheatreService {
         }
     }
 
-    // every field the user typed, checked before the database is touched
+    // US-05 - name, city and a capacity above zero
     private void validate(Theatre theatre) throws MtsException {
         if (theatre == null) {
             throw new MtsException("No theatre details were entered");
@@ -123,9 +129,6 @@ public class TheatreServiceImpl implements ITheatreService {
         }
         if (theatre.getTotalSeats() <= 0) {
             throw new MtsException("Total seats must be more than zero");
-        }
-        if (theatre.getTotalSeats() > MAX_CAPACITY) {
-            throw new MtsException("Total seats cannot be more than " + MAX_CAPACITY);
         }
         theatre.setName(theatre.getName().trim());
         theatre.setCity(theatre.getCity().trim());

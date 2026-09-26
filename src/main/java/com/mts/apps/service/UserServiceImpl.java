@@ -52,17 +52,18 @@ public class UserServiceImpl implements IUserService {
         if (password == null || password.isEmpty()) {
             throw new MtsException("Please enter your password");
         }
+        String cleanEmail = email.trim().toLowerCase();
         try {
-            User user = userDao.login(email.trim(), password);
+            User user = userDao.login(cleanEmail, password);
             if (user == null) {
-                logger.warn("Failed login attempt for email={}", email.trim());
+                logger.warn("Failed login attempt for email={}", cleanEmail);
                 throw new MtsException("Wrong email or password");
             }
             logger.info("Login successful: email={}, role={}", user.getEmail(), user.getRole());
             return user;
 
         } catch (SQLException e) {
-            logger.error("login failed for email={}", email, e);
+            logger.error("login failed for email={}", cleanEmail, e);
             throw new MtsException("Could not log you in, please try again", e);
         }
     }
@@ -72,15 +73,16 @@ public class UserServiceImpl implements IUserService {
         if (email == null || email.trim().isEmpty()) {
             throw new MtsException("Please enter an email address");
         }
+        String cleanEmail = email.trim().toLowerCase();
         try {
-            User user = userDao.getUserByEmail(email.trim());
+            User user = userDao.getUserByEmail(cleanEmail);
             if (user == null) {
-                throw new MtsException("No account found for " + email);
+                throw new MtsException("No account found for " + cleanEmail);
             }
             return user;
 
         } catch (SQLException e) {
-            logger.error("getUserByEmail failed for email={}", email, e);
+            logger.error("getUserByEmail failed for email={}", cleanEmail, e);
             throw new MtsException("Could not load the account, please try again", e);
         }
     }
@@ -127,15 +129,16 @@ public class UserServiceImpl implements IUserService {
         if (email == null || email.trim().isEmpty()) {
             throw new MtsException("Please enter the email of the account to delete");
         }
+        String cleanEmail = email.trim().toLowerCase();
         try {
-            if (!userDao.deleteUser(email.trim())) {
-                logger.warn("Delete matched no user: email={}", email);
-                throw new MtsException("No account found for " + email);
+            if (!userDao.deleteUser(cleanEmail)) {
+                logger.warn("Delete matched no user: email={}", cleanEmail);
+                throw new MtsException("No account found for " + cleanEmail);
             }
-            logger.info("User deleted: email={}", email);
+            logger.info("User deleted: email={}", cleanEmail);
 
         } catch (SQLException e) {
-            logger.error("deleteUser failed for email={}", email, e);
+            logger.error("deleteUser failed for email={}", cleanEmail, e);
             throw new MtsException("Could not delete the account, it may have bookings", e);
         }
     }
