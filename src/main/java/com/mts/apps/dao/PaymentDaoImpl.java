@@ -42,8 +42,10 @@ public class PaymentDaoImpl implements IPaymentDao {
             "INSERT INTO payments (booking_id, amount, payment_method, payment_status) "
                     + "VALUES (?, ?, ?, ?)";
 
+    // only a PENDING booking can become CONFIRMED
     private static final String CONFIRM_BOOKING =
-            "UPDATE bookings SET booking_status = 'CONFIRMED' WHERE booking_id = ?";
+            "UPDATE bookings SET booking_status = 'CONFIRMED' "
+                    + "WHERE booking_id = ? AND booking_status = 'PENDING'";
 
     private static final String SELECT_PAYMENT_BY_BOOKING =
             SELECT_BASE + "WHERE p.booking_id = ?";
@@ -81,7 +83,9 @@ public class PaymentDaoImpl implements IPaymentDao {
 
             try (PreparedStatement ps = con.prepareStatement(CONFIRM_BOOKING)) {
                 ps.setInt(1, bookingId);
-                ps.executeUpdate();
+                if (ps.executeUpdate() != 1) {
+                    throw new SQLException("Booking " + bookingId + " is not PENDING");
+                }
             }
 
             con.commit();
@@ -92,9 +96,10 @@ public class PaymentDaoImpl implements IPaymentDao {
         } catch (SQLException e) {
             if (con != null) {
                 con.rollback();
-                logger.error("Rolled back payment for bookingId={}", bookingId, e);
             }
+            logger.error("Rolled back payment for bookingId={}", bookingId, e);
             throw e;
+
         } finally {
             if (con != null) {
                 con.setAutoCommit(true);

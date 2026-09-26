@@ -13,7 +13,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,10 @@ public class BookingDaoImpl implements IBookingDao {
                     + "JOIN shows sh   ON b.show_id     = sh.show_id "
                     + "JOIN theatres t ON sh.theatre_id = t.theatre_id "
                     + "JOIN movies m   ON sh.movie_id   = m.movie_id ";
+
+    // A1, A2 ... A10 in number order, not text order
+    private static final String SEAT_ORDER =
+            "ORDER BY LEFT(s.seat_number, 1), CAST(SUBSTRING(s.seat_number, 2) AS UNSIGNED)";
 
     private static final String INSERT_BOOKING =
             "INSERT INTO bookings (show_id, user_id, total_amount, booking_status) "
@@ -63,14 +66,15 @@ public class BookingDaoImpl implements IBookingDao {
                     + "FROM seats s JOIN theatres t ON s.theatre_id = t.theatre_id "
                     + "WHERE s.theatre_id = ? "
                     + "AND s.seat_id NOT IN (SELECT seat_id FROM booked_seats WHERE show_id = ?) "
-                    + "ORDER BY s.seat_number";
+                    + SEAT_ORDER;
 
     private static final String SELECT_SEATS_BY_BOOKING =
             "SELECT s.*, t.name, t.city, t.address, t.total_seats "
                     + "FROM booked_seats bs "
                     + "JOIN seats s    ON bs.seat_id   = s.seat_id "
                     + "JOIN theatres t ON s.theatre_id = t.theatre_id "
-                    + "WHERE bs.booking_id = ? ORDER BY s.seat_number";
+                    + "WHERE bs.booking_id = ? "
+                    + SEAT_ORDER;
 
     private static final String DELETE_BOOKED_SEATS =
             "DELETE FROM booked_seats WHERE booking_id = ?";
@@ -81,6 +85,8 @@ public class BookingDaoImpl implements IBookingDao {
     private static final String REFUND_PAYMENT =
             "UPDATE payments SET payment_status = 'REFUNDED' "
                     + "WHERE booking_id = ? AND payment_status = 'SUCCESS'";
+
+    private static final int DUPLICATE_KEY = 1062;   // MySQL error code for a UNIQUE clash
 
     private static final Logger logger = LoggerFactory.getLogger(BookingDaoImpl.class);
 
@@ -130,19 +136,15 @@ public class BookingDaoImpl implements IBookingDao {
                     bookingId, seats.size(), showId, userId, booking.getTotalAmount());
             return bookingId;
 
-        } catch (SQLIntegrityConstraintViolationException e) {
-            // UNIQUE (show_id, seat_id) fired - somebody already holds one of these seats
-            if (con != null) {
-                con.rollback();
-            }
-            logger.error("Rolled back booking, a seat is already held for showId={}", showId, e);
-            throw e;
-
         } catch (SQLException e) {
             if (con != null) {
                 con.rollback();
             }
-            logger.error("Rolled back booking for showId={}, userId={}", showId, userId, e);
+            if (e.getErrorCode() == DUPLICATE_KEY) {
+                logger.error("Rolled back booking, a seat is already held for showId={}", showId, e);
+            } else {
+                logger.error("Rolled back booking for showId={}, userId={}", showId, userId, e);
+            }
             throw e;
 
         } finally {

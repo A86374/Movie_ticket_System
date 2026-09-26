@@ -22,10 +22,12 @@ public class SeatDaoImpl implements ISeatDao {
                     + "FROM seats s JOIN theatres t ON s.theatre_id = t.theatre_id "
                     + "WHERE s.theatre_id = ? AND s.seat_number = ?";
 
+    // A1, A2 ... A10 in number order, not text order
     private static final String SELECT_SEATS_BY_THEATRE =
             "SELECT s.*, t.name, t.city, t.address, t.total_seats "
                     + "FROM seats s JOIN theatres t ON s.theatre_id = t.theatre_id "
-                    + "WHERE s.theatre_id = ? ORDER BY s.seat_number";
+                    + "WHERE s.theatre_id = ? "
+                    + "ORDER BY LEFT(s.seat_number, 1), CAST(SUBSTRING(s.seat_number, 2) AS UNSIGNED)";
 
     private static final String COUNT_SEATS_BY_THEATRE =
             "SELECT COUNT(*) FROM seats WHERE theatre_id = ?";
