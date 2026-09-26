@@ -1,28 +1,36 @@
 package com.mts.apps.service;
 
-import com.mts.apps.model.BookedSeat;
+import com.mts.apps.exception.MtsException;
 import com.mts.apps.model.Booking;
+import com.mts.apps.model.Seat;
+import com.mts.apps.model.Show;
+import com.mts.apps.model.User;
+
 import java.util.List;
 
-/** Booking and cancellation. */
 public interface IBookingService {
 
-    /** Checks the show has not started, 1 to 10 seats, every seat exists and is free, adds up the prices and saves the booking as PENDING with its seats. */
-    Booking bookTickets(int userId, int showId, List<String> seatNumbers) throws MtsException;
+    /** US-11 - seats of this show that nobody is holding. */
+    List<Seat> getAvailableSeats(Show show) throws MtsException;
 
-    /** One booking. */
-    Booking getBookingById(int bookingId) throws MtsException;
+    /** US-12 - books 1 to 10 seats as PENDING. Returns the saved booking with its id. */
+    Booking bookSeats(User user, Show show, List<String> seatNumbers) throws MtsException;
 
-    /** Every booking, for the admin payment status list. */
+    /** US-15 - every booking of the logged in customer. */
+    List<Booking> getMyBookings(User user) throws MtsException;
+
+    /** The logged in customer's bookings with one status, e.g. PENDING to pay later. */
+    List<Booking> getMyBookingsByStatus(User user, String status) throws MtsException;
+
+    /** The seats inside a booking. Empty for a cancelled booking. */
+    List<Seat> getSeatsOfBooking(Booking booking) throws MtsException;
+
+    /** US-16 - own booking only, before the show starts. */
+    void cancelBooking(User user, Booking booking) throws MtsException;
+
+    /** Admin - every booking. */
     List<Booking> getAllBookings() throws MtsException;
 
-    /** Bookings of the logged in customer. */
-    List<Booking> getMyBookings(int userId) throws MtsException;
-
-    /** Seats inside one booking. */
-    List<BookedSeat> getBookedSeats(int bookingId) throws MtsException;
-
-    /** Only the owner, only before the show starts. Sets the booking CANCELLED and a paid payment REFUNDED. */
-    boolean cancelBooking(int userId, int bookingId) throws MtsException;
-
+    /** Admin - every booking with one status. */
+    List<Booking> getBookingsByStatus(String status) throws MtsException;
 }
