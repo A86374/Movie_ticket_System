@@ -2,7 +2,12 @@ package com.mts.apps.service;
 
 import com.mts.apps.dao.ISeatDao;
 import com.mts.apps.dao.SeatDaoImpl;
+import com.mts.apps.exception.BusinessRuleException;
+import com.mts.apps.exception.DatabaseException;
+import com.mts.apps.exception.DuplicateException;
 import com.mts.apps.exception.MtsException;
+import com.mts.apps.exception.NotFoundException;
+import com.mts.apps.exception.ValidationException;
 import com.mts.apps.model.Seat;
 import com.mts.apps.model.Theatre;
 
@@ -38,10 +43,10 @@ public class SeatServiceImpl implements ISeatService {
     public void addSeatRow(String theatreName, String rowLetter, int count,
                            String seatType, BigDecimal price) throws MtsException {
         if (rowLetter == null || !rowLetter.trim().toUpperCase().matches("[A-Z]")) {
-            throw new MtsException("Row must be a single letter from A to Z");
+            throw new ValidationException("Row must be a single letter from A to Z");
         }
         if (count < 1) {
-            throw new MtsException("A row needs at least one seat");
+            throw new ValidationException("A row needs at least one seat");
         }
         String row = rowLetter.trim().toUpperCase();
         String type = checkTypeAndPrice(seatType, price);
@@ -52,7 +57,7 @@ public class SeatServiceImpl implements ISeatService {
 
             for (Seat seat : existing) {
                 if (seat.getSeatNumber().startsWith(row)) {
-                    throw new MtsException("Row " + row + " already exists in " + theatre.getName());
+                    throw new DuplicateException("Row " + row + " already exists in " + theatre.getName());
                 }
             }
 
@@ -60,7 +65,7 @@ public class SeatServiceImpl implements ISeatService {
             if (count > remaining) {
                 logger.warn("Capacity exceeded: theatre={}, asked={}, remaining={}",
                         theatre.getName(), count, remaining);
-                throw new MtsException("Only " + remaining + " more seats can be added to "
+                throw new BusinessRuleException("Only " + remaining + " more seats can be added to "
                         + theatre.getName());
             }
 
@@ -77,7 +82,7 @@ public class SeatServiceImpl implements ISeatService {
 
         } catch (SQLException e) {
             logger.error("addSeatRow failed: theatre={}, row={}", theatreName, row, e);
-            throw new MtsException("Could not add the seats, please try again", e);
+            throw new DatabaseException("Could not add the seats, please try again", e);
         }
     }
 
@@ -87,13 +92,13 @@ public class SeatServiceImpl implements ISeatService {
         try {
             List<Seat> seats = seatDao.getSeatsByTheatre(theatre);
             if (seats.isEmpty()) {
-                throw new MtsException("No seats have been added to " + theatre.getName() + " yet");
+                throw new NotFoundException("No seats have been added to " + theatre.getName() + " yet");
             }
             return seats;
 
         } catch (SQLException e) {
             logger.error("getSeatsByTheatre failed: theatre={}", theatreName, e);
-            throw new MtsException("Could not load the seats, please try again", e);
+            throw new DatabaseException("Could not load the seats, please try again", e);
         }
     }
 
@@ -107,7 +112,7 @@ public class SeatServiceImpl implements ISeatService {
         try {
             Seat seat = seatDao.getSeat(theatre, number);
             if (seat == null) {
-                throw new MtsException("No seat " + number + " in " + theatre.getName());
+                throw new NotFoundException("No seat " + number + " in " + theatre.getName());
             }
             seat.setSeatType(type);
             seat.setPrice(price);
@@ -117,7 +122,7 @@ public class SeatServiceImpl implements ISeatService {
 
         } catch (SQLException e) {
             logger.error("updateSeat failed: theatre={}, seat={}", theatreName, number, e);
-            throw new MtsException("Could not update the seat, please try again", e);
+            throw new DatabaseException("Could not update the seat, please try again", e);
         }
     }
 
@@ -128,30 +133,30 @@ public class SeatServiceImpl implements ISeatService {
 
         try {
             if (!seatDao.deleteSeat(theatre, number)) {
-                throw new MtsException("No seat " + number + " in " + theatre.getName());
+                throw new NotFoundException("No seat " + number + " in " + theatre.getName());
             }
             logger.info("Seat deleted: theatre={}, seat={}", theatre.getName(), number);
 
         } catch (SQLException e) {
             logger.error("deleteSeat failed: theatre={}, seat={}", theatreName, number, e);
-            throw new MtsException("Could not delete the seat, it may be held by a booking", e);
+            throw new DatabaseException("Could not delete the seat, it may be held by a booking", e);
         }
     }
 
     // US-07 - type must be SILVER, GOLD or PLATINUM and price must be positive
     private String checkTypeAndPrice(String seatType, BigDecimal price) throws MtsException {
         if (seatType == null || !SEAT_TYPES.contains(seatType.trim().toUpperCase())) {
-            throw new MtsException("Seat type must be SILVER, GOLD or PLATINUM");
+            throw new ValidationException("Seat type must be SILVER, GOLD or PLATINUM");
         }
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new MtsException("Price must be more than zero");
+            throw new ValidationException("Price must be more than zero");
         }
         return seatType.trim().toUpperCase();
     }
 
     private String checkSeatNumber(String seatNumber) throws MtsException {
         if (seatNumber == null || seatNumber.trim().isEmpty()) {
-            throw new MtsException("Please enter a seat number");
+            throw new ValidationException("Please enter a seat number");
         }
         return seatNumber.trim().toUpperCase();
     }

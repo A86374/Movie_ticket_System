@@ -4,7 +4,11 @@ import com.mts.apps.dao.ISeatDao;
 import com.mts.apps.dao.IShowDao;
 import com.mts.apps.dao.SeatDaoImpl;
 import com.mts.apps.dao.ShowDaoImpl;
+import com.mts.apps.exception.BusinessRuleException;
+import com.mts.apps.exception.DatabaseException;
 import com.mts.apps.exception.MtsException;
+import com.mts.apps.exception.NotFoundException;
+import com.mts.apps.exception.ValidationException;
 import com.mts.apps.model.Movie;
 import com.mts.apps.model.Show;
 import com.mts.apps.model.Theatre;
@@ -54,7 +58,7 @@ public class ShowServiceImpl implements IShowService {
     public void scheduleShow(String movieTitle, String theatreName,
                              LocalDate showDate, String showSlot) throws MtsException {
         if (showDate == null) {
-            throw new MtsException("Please enter a show date");
+            throw new ValidationException("Please enter a show date");
         }
         String slot = checkSlot(showSlot);
         Movie movie = movieService.getMovieByTitle(movieTitle);
@@ -64,16 +68,16 @@ public class ShowServiceImpl implements IShowService {
         LocalTime end = start.plusMinutes(movie.getDuration());
 
         if (LocalDateTime.of(showDate, start).isBefore(LocalDateTime.now())) {
-            throw new MtsException("A show cannot be scheduled in the past");
+            throw new BusinessRuleException("A show cannot be scheduled in the past");
         }
         if (!end.isAfter(start)) {
-            throw new MtsException(movie.getTitle() + " runs " + movie.getDuration()
+            throw new BusinessRuleException(movie.getTitle() + " runs " + movie.getDuration()
                     + " minutes and would end after midnight in the " + slot + " slot");
         }
 
         try {
             if (seatDao.countSeatsByTheatre(theatre) == 0) {
-                throw new MtsException("Add seats to " + theatre.getName()
+                throw new BusinessRuleException("Add seats to " + theatre.getName()
                         + " before scheduling a show there");
             }
 
@@ -83,7 +87,7 @@ public class ShowServiceImpl implements IShowService {
                 logger.warn("Show clash rejected: theatre={}, date={}, new={}-{}, existing={} {}-{}",
                         theatre.getName(), showDate, start, end,
                         other.getMovie().getTitle(), other.getStartTime(), other.getEndTime());
-                throw new MtsException("Clashes with " + other.getMovie().getTitle()
+                throw new BusinessRuleException("Clashes with " + other.getMovie().getTitle()
                         + " (" + other.getShowSlot() + ", " + other.getStartTime()
                         + " to " + other.getEndTime() + ")");
             }
@@ -103,7 +107,7 @@ public class ShowServiceImpl implements IShowService {
         } catch (SQLException e) {
             logger.error("scheduleShow failed: movie={}, theatre={}, date={}, slot={}",
                     movieTitle, theatreName, showDate, slot, e);
-            throw new MtsException("Could not schedule the show, please try again", e);
+            throw new DatabaseException("Could not schedule the show, please try again", e);
         }
     }
 
@@ -112,13 +116,13 @@ public class ShowServiceImpl implements IShowService {
         try {
             List<Show> shows = showDao.getAllShows();
             if (shows.isEmpty()) {
-                throw new MtsException("No shows have been scheduled yet");
+                throw new NotFoundException("No shows have been scheduled yet");
             }
             return shows;
 
         } catch (SQLException e) {
             logger.error("getAllShows failed", e);
-            throw new MtsException("Could not load the shows, please try again", e);
+            throw new DatabaseException("Could not load the shows, please try again", e);
         }
     }
 
@@ -128,13 +132,13 @@ public class ShowServiceImpl implements IShowService {
         try {
             List<Show> shows = showDao.getUpcomingShowsByMovie(movie);
             if (shows.isEmpty()) {
-                throw new MtsException("No upcoming shows for " + movie.getTitle());
+                throw new NotFoundException("No upcoming shows for " + movie.getTitle());
             }
             return shows;
 
         } catch (SQLException e) {
             logger.error("getUpcomingShows failed: movie={}", movieTitle, e);
-            throw new MtsException("Could not load the shows, please try again", e);
+            throw new DatabaseException("Could not load the shows, please try again", e);
         }
     }
 
@@ -142,14 +146,14 @@ public class ShowServiceImpl implements IShowService {
     public void deleteShow(String theatreName, LocalDate showDate,
                            String showSlot) throws MtsException {
         if (showDate == null) {
-            throw new MtsException("Please enter the show date");
+            throw new ValidationException("Please enter the show date");
         }
         String slot = checkSlot(showSlot);
         Theatre theatre = theatreService.getTheatreByName(theatreName);
 
         try {
             if (!showDao.deleteShow(theatre, showDate, slot)) {
-                throw new MtsException("No " + slot + " show at " + theatre.getName()
+                throw new NotFoundException("No " + slot + " show at " + theatre.getName()
                         + " on " + showDate);
             }
             logger.info("Show deleted: theatre={}, date={}, slot={}",
@@ -158,14 +162,14 @@ public class ShowServiceImpl implements IShowService {
         } catch (SQLException e) {
             logger.error("deleteShow failed: theatre={}, date={}, slot={}",
                     theatreName, showDate, slot, e);
-            throw new MtsException("Could not delete the show, it may already have bookings", e);
+            throw new DatabaseException("Could not delete the show, it may already have bookings", e);
         }
     }
 
     private String checkSlot(String showSlot) throws MtsException {
         String slot = showSlot == null ? "" : showSlot.trim().toUpperCase();
         if (!SLOT_START.containsKey(slot)) {
-            throw new MtsException("Slot must be MORNING, MATINEE, FIRST_SHOW or SECOND_SHOW");
+            throw new ValidationException("Slot must be MORNING, MATINEE, FIRST_SHOW or SECOND_SHOW");
         }
         return slot;
     }

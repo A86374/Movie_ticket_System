@@ -2,7 +2,10 @@ package com.mts.apps.service;
 
 import com.mts.apps.dao.IPaymentDao;
 import com.mts.apps.dao.PaymentDaoImpl;
+import com.mts.apps.exception.BusinessRuleException;
+import com.mts.apps.exception.DatabaseException;
 import com.mts.apps.exception.MtsException;
+import com.mts.apps.exception.ValidationException;
 import com.mts.apps.model.Booking;
 import com.mts.apps.model.Payment;
 
@@ -38,12 +41,12 @@ public class PaymentServiceImpl implements IPaymentService {
     public void pay(Booking booking, String paymentMethod) throws MtsException {
         String method = paymentMethod == null ? "" : paymentMethod.trim().toUpperCase();
         if (!METHODS.contains(method)) {
-            throw new MtsException("Payment method must be UPI, CARD or CASH");
+            throw new ValidationException("Payment method must be UPI, CARD or CASH");
         }
         if (!STATUS_PENDING.equals(booking.getBookingStatus())) {
             logger.warn("Payment refused, booking is {}: bookingId={}",
                     booking.getBookingStatus(), booking.getBookingId());
-            throw new MtsException("Booking " + booking.getBookingId() + " is "
+            throw new BusinessRuleException("Booking " + booking.getBookingId() + " is "
                     + booking.getBookingStatus() + " and cannot be paid");
         }
 
@@ -59,7 +62,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
         } catch (SQLException e) {
             logger.error("pay failed for bookingId={}", booking.getBookingId(), e);
-            throw new MtsException("Payment failed, please reload your bookings and try again", e);
+            throw new DatabaseException("Payment failed, please reload your bookings and try again", e);
         }
     }
 
@@ -70,7 +73,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
         } catch (SQLException e) {
             logger.error("getPaymentOf failed for bookingId={}", booking.getBookingId(), e);
-            throw new MtsException("Could not load the payment, please try again", e);
+            throw new DatabaseException("Could not load the payment, please try again", e);
         }
     }
 }

@@ -2,7 +2,12 @@ package com.mts.apps.service;
 
 import com.mts.apps.dao.BookingDaoImpl;
 import com.mts.apps.dao.IBookingDao;
+import com.mts.apps.exception.BusinessRuleException;
+import com.mts.apps.exception.DatabaseException;
 import com.mts.apps.exception.MtsException;
+import com.mts.apps.exception.NotFoundException;
+import com.mts.apps.exception.SeatUnavailableException;
+import com.mts.apps.exception.ValidationException;
 import com.mts.apps.model.Booking;
 import com.mts.apps.model.Seat;
 import com.mts.apps.model.Show;
@@ -48,13 +53,13 @@ public class BookingServiceImpl implements IBookingService {
         try {
             List<Seat> seats = bookingDao.getAvailableSeats(show);
             if (seats.isEmpty()) {
-                throw new MtsException("This show is sold out");
+                throw new SeatUnavailableException("This show is sold out");
             }
             return seats;
 
         } catch (SQLException e) {
             logger.error("getAvailableSeats failed for showId={}", show.getShowId(), e);
-            throw new MtsException("Could not load the seats, please try again", e);
+            throw new DatabaseException("Could not load the seats, please try again", e);
         }
     }
 
@@ -70,7 +75,7 @@ public class BookingServiceImpl implements IBookingService {
             }
         }
         if (wanted.isEmpty() || wanted.size() > MAX_SEATS_PER_BOOKING) {
-            throw new MtsException("Choose between 1 and " + MAX_SEATS_PER_BOOKING + " seats");
+            throw new ValidationException("Choose between 1 and " + MAX_SEATS_PER_BOOKING + " seats");
         }
 
         Map<String, Seat> available = new HashMap<>();
@@ -83,7 +88,7 @@ public class BookingServiceImpl implements IBookingService {
         for (String number : wanted) {
             Seat seat = available.get(number);
             if (seat == null) {
-                throw new MtsException("Seat " + number + " is not available for this show");
+                throw new SeatUnavailableException("Seat " + number + " is not available for this show");
             }
             chosen.add(seat);
             total = total.add(seat.getPrice());
@@ -104,11 +109,11 @@ public class BookingServiceImpl implements IBookingService {
             if (e.getErrorCode() == DUPLICATE_KEY) {
                 // someone took one of these seats between the check above and the insert
                 logger.warn("Seat taken at insert time: showId={}, seats={}", show.getShowId(), wanted);
-                throw new MtsException(
+                throw new SeatUnavailableException(
                         "One of those seats was just booked by someone else, please choose again", e);
             }
             logger.error("bookSeats failed: showId={}, userId={}", show.getShowId(), user.getUserId(), e);
-            throw new MtsException("Could not complete the booking, please try again", e);
+            throw new DatabaseException("Could not complete the booking, please try again", e);
         }
     }
 
@@ -117,13 +122,13 @@ public class BookingServiceImpl implements IBookingService {
         try {
             List<Booking> bookings = bookingDao.getBookingsByUser(user);
             if (bookings.isEmpty()) {
-                throw new MtsException("You have no bookings yet");
+                throw new NotFoundException("You have no bookings yet");
             }
             return bookings;
 
         } catch (SQLException e) {
             logger.error("getMyBookings failed for userId={}", user.getUserId(), e);
-            throw new MtsException("Could not load your bookings, please try again", e);
+            throw new DatabaseException("Could not load your bookings, please try again", e);
         }
     }
 
@@ -133,13 +138,13 @@ public class BookingServiceImpl implements IBookingService {
         try {
             List<Booking> bookings = bookingDao.getBookingsByUserAndStatus(user, s);
             if (bookings.isEmpty()) {
-                throw new MtsException("You have no " + s + " bookings");
+                throw new NotFoundException("You have no " + s + " bookings");
             }
             return bookings;
 
         } catch (SQLException e) {
             logger.error("getMyBookingsByStatus failed: userId={}, status={}", user.getUserId(), s, e);
-            throw new MtsException("Could not load your bookings, please try again", e);
+            throw new DatabaseException("Could not load your bookings, please try again", e);
         }
     }
 
@@ -150,7 +155,7 @@ public class BookingServiceImpl implements IBookingService {
 
         } catch (SQLException e) {
             logger.error("getSeatsOfBooking failed for bookingId={}", booking.getBookingId(), e);
-            throw new MtsException("Could not load the seats of this booking", e);
+            throw new DatabaseException("Could not load the seats of this booking", e);
         }
     }
 
@@ -160,24 +165,24 @@ public class BookingServiceImpl implements IBookingService {
         if (booking.getUser().getUserId() != user.getUserId()) {
             logger.warn("Cancel refused, not the owner: bookingId={}, userId={}",
                     booking.getBookingId(), user.getUserId());
-            throw new MtsException("You can only cancel your own bookings");
+            throw new BusinessRuleException("You can only cancel your own bookings");
         }
         if (STATUS_CANCELLED.equals(booking.getBookingStatus())) {
-            throw new MtsException("Booking " + booking.getBookingId() + " is already cancelled");
+            throw new BusinessRuleException("Booking " + booking.getBookingId() + " is already cancelled");
         }
         Show show = booking.getShow();
         if (!LocalDateTime.of(show.getShowDate(), show.getStartTime()).isAfter(LocalDateTime.now())) {
-            throw new MtsException("This show has already started and cannot be cancelled");
+            throw new BusinessRuleException("This show has already started and cannot be cancelled");
         }
 
         try {
             if (!bookingDao.cancelBooking(booking)) {
-                throw new MtsException("That booking no longer exists");
+                throw new NotFoundException("That booking no longer exists");
             }
 
         } catch (SQLException e) {
             logger.error("cancelBooking failed for bookingId={}", booking.getBookingId(), e);
-            throw new MtsException("Could not cancel the booking, please try again", e);
+            throw new DatabaseException("Could not cancel the booking, please try again", e);
         }
     }
 
@@ -186,13 +191,13 @@ public class BookingServiceImpl implements IBookingService {
         try {
             List<Booking> bookings = bookingDao.getAllBookings();
             if (bookings.isEmpty()) {
-                throw new MtsException("No bookings have been made yet");
+                throw new NotFoundException("No bookings have been made yet");
             }
             return bookings;
 
         } catch (SQLException e) {
             logger.error("getAllBookings failed", e);
-            throw new MtsException("Could not load the bookings, please try again", e);
+            throw new DatabaseException("Could not load the bookings, please try again", e);
         }
     }
 
@@ -202,20 +207,20 @@ public class BookingServiceImpl implements IBookingService {
         try {
             List<Booking> bookings = bookingDao.getBookingsByStatus(s);
             if (bookings.isEmpty()) {
-                throw new MtsException("No " + s + " bookings");
+                throw new NotFoundException("No " + s + " bookings");
             }
             return bookings;
 
         } catch (SQLException e) {
             logger.error("getBookingsByStatus failed: status={}", s, e);
-            throw new MtsException("Could not load the bookings, please try again", e);
+            throw new DatabaseException("Could not load the bookings, please try again", e);
         }
     }
 
     private String checkStatus(String status) throws MtsException {
         String s = status == null ? "" : status.trim().toUpperCase();
         if (!STATUSES.contains(s)) {
-            throw new MtsException("Status must be PENDING, CONFIRMED or CANCELLED");
+            throw new ValidationException("Status must be PENDING, CONFIRMED or CANCELLED");
         }
         return s;
     }
