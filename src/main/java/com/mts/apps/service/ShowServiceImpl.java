@@ -30,10 +30,24 @@ public class ShowServiceImpl implements IShowService {
             "FIRST_SHOW",  LocalTime.of(18, 30),
             "SECOND_SHOW", LocalTime.of(21, 0));
 
-    private final IShowDao showDao = new ShowDaoImpl();
-    private final ISeatDao seatDao = new SeatDaoImpl();
-    private final IMovieService movieService = new MovieServiceImpl();
-    private final ITheatreService theatreService = new TheatreServiceImpl();
+    private final IShowDao showDao;
+    private final ISeatDao seatDao;
+    private final IMovieService movieService;
+    private final ITheatreService theatreService;
+
+    // the app uses this one - it creates the real DAOs and services, exactly like before
+    public ShowServiceImpl() {
+        this(new ShowDaoImpl(), new SeatDaoImpl(), new MovieServiceImpl(), new TheatreServiceImpl());
+    }
+
+    // the tests use this one - they pass in Mockito fakes
+    public ShowServiceImpl(IShowDao showDao, ISeatDao seatDao,
+                           IMovieService movieService, ITheatreService theatreService) {
+        this.showDao = showDao;
+        this.seatDao = seatDao;
+        this.movieService = movieService;
+        this.theatreService = theatreService;
+    }
 
     // FEATURE 7.2 - US-09, a show can never clash with another in the same theatre
     @Override

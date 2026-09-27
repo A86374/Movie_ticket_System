@@ -21,7 +21,17 @@ public class PaymentServiceImpl implements IPaymentService {
     private static final String STATUS_CONFIRMED = "CONFIRMED";
     private static final String STATUS_SUCCESS = "SUCCESS";
 
-    private final IPaymentDao paymentDao = new PaymentDaoImpl();
+    private final IPaymentDao paymentDao;
+
+    // the app uses this one - it creates the real DAO, exactly like before
+    public PaymentServiceImpl() {
+        this(new PaymentDaoImpl());
+    }
+
+    // the tests use this one - they pass in a Mockito fake DAO
+    public PaymentServiceImpl(IPaymentDao paymentDao) {
+        this.paymentDao = paymentDao;
+    }
 
     // US-13 - only a PENDING booking can be paid, and only once
     @Override
@@ -48,7 +58,7 @@ public class PaymentServiceImpl implements IPaymentService {
             booking.setBookingStatus(STATUS_CONFIRMED);   // keep the object in step with the database
 
         } catch (SQLException e) {
-            logger.error("pay failed for bookingId={}", booking.getBookingId());
+            logger.error("pay failed for bookingId={}", booking.getBookingId(), e);
             throw new MtsException("Payment failed, please reload your bookings and try again", e);
         }
     }

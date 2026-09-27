@@ -31,7 +31,17 @@ public class BookingServiceImpl implements IBookingService {
     private static final String STATUS_CANCELLED = "CANCELLED";
     private static final List<String> STATUSES = List.of("PENDING", "CONFIRMED", "CANCELLED");
 
-    private final IBookingDao bookingDao = new BookingDaoImpl();
+    private final IBookingDao bookingDao;
+
+    // the app uses this one - it creates the real DAO, exactly like before
+    public BookingServiceImpl() {
+        this(new BookingDaoImpl());
+    }
+
+    // the tests use this one - they pass in a Mockito fake DAO
+    public BookingServiceImpl(IBookingDao bookingDao) {
+        this.bookingDao = bookingDao;
+    }
 
     @Override
     public List<Seat> getAvailableSeats(Show show) throws MtsException {
@@ -97,7 +107,7 @@ public class BookingServiceImpl implements IBookingService {
                 throw new MtsException(
                         "One of those seats was just booked by someone else, please choose again", e);
             }
-            logger.error("bookSeats failed: showId={}, userId={}", show.getShowId(), user.getUserId());
+            logger.error("bookSeats failed: showId={}, userId={}", show.getShowId(), user.getUserId(), e);
             throw new MtsException("Could not complete the booking, please try again", e);
         }
     }
@@ -166,7 +176,7 @@ public class BookingServiceImpl implements IBookingService {
             }
 
         } catch (SQLException e) {
-            logger.error("cancelBooking failed for bookingId={}", booking.getBookingId());
+            logger.error("cancelBooking failed for bookingId={}", booking.getBookingId(), e);
             throw new MtsException("Could not cancel the booking, please try again", e);
         }
     }

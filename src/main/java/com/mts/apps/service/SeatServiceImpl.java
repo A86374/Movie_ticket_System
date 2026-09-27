@@ -19,8 +19,19 @@ public class SeatServiceImpl implements ISeatService {
 
     private static final List<String> SEAT_TYPES = List.of("SILVER", "GOLD", "PLATINUM");
 
-    private final ISeatDao seatDao = new SeatDaoImpl();
-    private final ITheatreService theatreService = new TheatreServiceImpl();
+    private final ISeatDao seatDao;
+    private final ITheatreService theatreService;
+
+    // the app uses this one - it creates the real DAO and service, exactly like before
+    public SeatServiceImpl() {
+        this(new SeatDaoImpl(), new TheatreServiceImpl());
+    }
+
+    // the tests use this one - they pass in Mockito fakes
+    public SeatServiceImpl(ISeatDao seatDao, ITheatreService theatreService) {
+        this.seatDao = seatDao;
+        this.theatreService = theatreService;
+    }
 
     // FEATURE 7.1 - a new row, never past the theatre capacity
     @Override

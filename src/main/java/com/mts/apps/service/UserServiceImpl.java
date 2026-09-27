@@ -19,7 +19,17 @@ public class UserServiceImpl implements IUserService {
     private static final String ROLE_ADMIN = "ADMIN";
     private static final int MIN_PASSWORD_LENGTH = 6;
 
-    private final IUserDao userDao = new UserDaoImpl();
+    private final IUserDao userDao;
+
+    // the app uses this one - it creates the real DAO, exactly like before
+    public UserServiceImpl() {
+        this(new UserDaoImpl());
+    }
+
+    // the tests use this one - they pass in a Mockito fake DAO
+    public UserServiceImpl(IUserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
     public void register(User user) throws MtsException {

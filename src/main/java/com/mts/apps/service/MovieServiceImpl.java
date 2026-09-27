@@ -18,7 +18,17 @@ public class MovieServiceImpl implements IMovieService {
     private static final int MIN_DURATION = 30;
     private static final int MAX_DURATION = 300;
 
-    private final IMovieDao movieDao = new MovieDaoImpl();
+    private final IMovieDao movieDao;
+
+    // the app uses this one - it creates the real DAO, exactly like before
+    public MovieServiceImpl() {
+        this(new MovieDaoImpl());
+    }
+
+    // the tests use this one - they pass in a Mockito fake DAO
+    public MovieServiceImpl(IMovieDao movieDao) {
+        this.movieDao = movieDao;
+    }
 
     @Override
     public void addMovie(Movie movie) throws MtsException {

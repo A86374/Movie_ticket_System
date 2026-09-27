@@ -17,8 +17,19 @@ public class TheatreServiceImpl implements ITheatreService {
 
     private static final Logger logger = LoggerFactory.getLogger(TheatreServiceImpl.class);
 
-    private final ITheatreDao theatreDao = new TheatreDaoImpl();
-    private final ISeatDao seatDao = new SeatDaoImpl();
+    private final ITheatreDao theatreDao;
+    private final ISeatDao seatDao;
+
+    // the app uses this one - it creates the real DAOs, exactly like before
+    public TheatreServiceImpl() {
+        this(new TheatreDaoImpl(), new SeatDaoImpl());
+    }
+
+    // the tests use this one - they pass in Mockito fake DAOs
+    public TheatreServiceImpl(ITheatreDao theatreDao, ISeatDao seatDao) {
+        this.theatreDao = theatreDao;
+        this.seatDao = seatDao;
+    }
 
     @Override
     public void addTheatre(Theatre theatre) throws MtsException {
