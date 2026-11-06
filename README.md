@@ -2,7 +2,7 @@
 
 A simple movie ticket booking application built with Java, JDBC and MySQL as part of the Revature training program. An admin manages movies, theatres, seats and show timings, and customers book seats, pay and cancel their bookings.
 
-> 🔒 This is a private repository. Access is by invitation only.
+
 
 ## Features
 
